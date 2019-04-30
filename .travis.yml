@@ -1,0 +1,17 @@
+language: generic
+
+services:
+  - docker
+
+script:
+  - make tc build
+
+deploy:
+  provider: releases
+  # https://github.com/settings/tokens
+  # Add variable TOKEN in TravisCI settings
+  api_key: $TOKEN
+  file:
+    - "main.pdf"
+  name: Build $(date +'%d.%m.%Y %R')
+  skip-cleanup: true

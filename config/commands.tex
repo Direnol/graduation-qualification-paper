@@ -1,0 +1,11 @@
+\newcommand{\chap}[1]{\chapter*{#1}
+    \addcontentsline{toc}{chapter}{#1}
+}
+
+\newcommand{\pic}[4][h]{\def\lableName{fig:#3}
+    \begin{figure}[#1]
+        \centering
+        \includegraphics{#2}
+        \caption{#4}\label{\lableName}
+    \end{figure}
+}

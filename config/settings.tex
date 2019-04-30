@@ -1,0 +1,30 @@
+\bibliographystyle{unsrt}
+
+% Оформление листинга
+\lstset{stepnumber=2,
+    basicstyle=\footnotesize\ttfamily,
+    captionpos=b,
+    frame=single,
+    numbers=left,
+    inputencoding=utf8,
+    extendedchars=\true,
+    belowcaptionskip=1\baselineskip,
+    xleftmargin=\parindent,
+    showstringspaces=false,
+    keywordstyle=\bfseries\color{green!40!black},
+    commentstyle=\itshape\color{purple!40!black},
+    identifierstyle=\color{blue},
+    stringstyle=\color{orange},
+    breaklines=true
+}
+
+
+\pagestyle{fancy}
+\fancyhf{}
+% меняем заголовок для команды \chapter и запрещаем переносы слов
+\titleformat{\chapter}{\centering
+    \Large
+    \hyphenpenalty=10000
+    \bfseries
+    \vspace{-2.5cm}
+}{\thechapter.~}{0pt}{\Large}
