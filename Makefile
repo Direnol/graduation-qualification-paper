@@ -12,6 +12,7 @@ DOCKER_OPTS=--rm ${USE_TTY} \
 tc:
 	@docker build \
 		--tag=${TOOLCHAIN_NAME} \
+		--quiet \
 		.
 
 cli:
@@ -24,10 +25,10 @@ build clean clean-all:
 ################
 
 raw-build:
-	latexmk -xelatex main.tex
+	latexmk -xelatex -f main.tex
 
 raw-clean:
 	latexmk -c
 
-raw-clean-all:
+raw-clean-all: raw-clean
 	latexmk -C
