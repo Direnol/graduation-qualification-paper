@@ -15,6 +15,8 @@ RUN \
     texlive-formats-extra texlive-latex-recommended texlive-lang-cyrillic \
     texlive-science texlive-xetex
 
+RUN \
+    apt install -y ttf-mscorefonts-installer
 USER ${USER}
 VOLUME [ "${DIR}" ]
 WORKDIR ${DIR}
