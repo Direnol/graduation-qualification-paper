@@ -21,10 +21,12 @@ build clean clean-all:
 	@docker run ${DOCKER_OPTS} \
 		make raw-$@
 
+%.pdf: %.tex
+	latexmk -interaction=nonstopmode -file-line-error -synctex=1 -xelatex -f $<
+
 ################
 
-raw-build:
-	latexmk -interaction=nonstopmode -file-line-error -synctex=1 -xelatex -f main.tex
+raw-build: report.pdf thesis.pdf
 
 raw-clean:
 	latexmk -c
