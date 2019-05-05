@@ -3,6 +3,9 @@ language: generic
 services:
   - docker
 
+env:
+  - IN_TRAVIS=true
+
 script:
   - make tc build
 

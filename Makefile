@@ -9,8 +9,12 @@ DOCKER_OPTS=--rm ${USE_TTY} \
 	--user user:$(shell id -u):$(shell id -g) \
 	${TOOLCHAIN_NAME}
 
+ifdef IN_TRAVIS
+	QUIET_DOCKER = --quiet
+endif
+
 tc:
-	@docker build --quiet \
+	docker build ${QUIET_DOCKER} \
 		--tag=${TOOLCHAIN_NAME} \
 		.
 
