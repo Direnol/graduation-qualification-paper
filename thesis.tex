@@ -1,0 +1,22 @@
+\include{config/preamble}
+
+% Путь до рисунков
+\graphicspath{{images/}}
+
+\begin{document}
+
+\include{titles/title}
+\include{titles/question}
+\include{titles/annotation}
+\include{titles/review}
+
+\def\contentsname{Содержание} %преобразует Оглавление в Содержание
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+
+\include{chapters/introduce}
+
+
+% \input{chapters/*}
+\end{document}

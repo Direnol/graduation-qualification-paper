@@ -24,7 +24,7 @@ build clean clean-all:
 ################
 
 raw-build:
-	latexmk -xelatex -pdflatex=pdflatex -f main.tex
+	latexmk -interaction=nonstopmode -file-line-error -synctex=1 -xelatex -f main.tex
 
 raw-clean:
 	latexmk -c

@@ -12,6 +12,7 @@ deploy:
   # Add variable TOKEN in TravisCI settings
   api_key: $TOKEN
   file:
-    - "main.pdf"
+    - "thesis.pdf"
+    - "report.pdf"
   name: Build $(date +'%d.%m.%Y %R')
   skip-cleanup: true

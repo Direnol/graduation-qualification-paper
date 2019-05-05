@@ -1,0 +1,165 @@
+\documentclass[a4paper]{report}
+\usepackage[14pt]{extsizes} % для того чтобы задать нестандартный 14-ый размер шрифта
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec} % XeTeX
+\usepackage{xunicode} % Unicode для XeTeX
+\usepackage{xltxtra}  % Верхние и нижние индексы
+\usepackage{pdfpages} % Вставка PDF
+% Шрифты, xelatex
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Times New Roman}
+\newfontfamily\cyrillicfont{Times New Roman}
+%\setsansfont{Liberation Sans}
+\setmonofont{FreeMono} % Моноширинный шрифт для оформления кода
+% Русский язык
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+% \usepackage[russian]{babel}
+\usepackage{setspace,amsmath}
+\usepackage[left=20mm, top=15mm, right=20mm, bottom=15mm, nohead, footskip=10mm]{geometry} % настройки полей документа
+\usepackage{indentfirst} % отделять первую строку раздела абзацным отступом
+\usepackage{textcomp}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[pdfborder={0 0 0}, colorlinks=false]{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{ifthen}
+\usepackage{xstring}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xfrac}
+\usepackage{csvsimple}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{multirow}
+\usepackage{lastpage}
+\usepackage{lipsum}
+\usepackage{titlesec}
+
+\bibliographystyle{unsrt}
+
+% Настройка вертикальных и горизонтальных отступов
+\titlespacing{\chapter}{\parindent}{-30pt}{12pt}[45pt]
+\titlespacing{\section}{\parindent}{13mm}{12pt}[45pt]
+\titlespacing{\subsection}{\parindent}{12pt}{12pt}[45pt]
+
+\usepackage{secdot}
+
+% Настройка заголовков
+\titleformat{\chapter}
+{\Large\hyphenpenalty=10000}
+{\thechapter~}{0pt}{\Large}
+
+\titleformat{\section}
+{\normalsize}
+{\thesection~}
+{0pt}{}
+
+\titleformat{\subsection}
+{\normalsize}
+{\thesubsection~}
+{0pt}{}
+
+\usepackage{tocloft}
+
+\renewcommand{\cfttoctitlefont}{\hspace{0.4\textwidth}} %уменьшаем размер шрифта и ровняем по центру
+% Межстрочные отступы в Оглавлении:
+\setlength{\cftbeforetoctitleskip}{-5mm} %отступ Оглавления от верхнего поля страницы.
+
+% Отступы от левого поля:
+\setlength{\cftchapindent}{0mm} %отступ между левым полем и \chapter{}
+\setlength{\cftsecindent}{0mm} %отступ между левым полем и \section{title}
+\setlength{\cftsubsecindent}{0mm} %отступ между левым полем и \section{title}
+\setlength{\cftsecnumwidth}{1.5cm}
+\setlength{\cftsubsecnumwidth}{3cm}
+% Отточия в Оглавлении
+\renewcommand\cftchapdotsep{\cftdot} %добавляет отточия после \chapter{title}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftchapdotsep}} %делает отточия после \chapter{title} тонкими, (по умолчанию жирные).
+\renewcommand\cftsecdotsep{\cftdot} %делает отточия после \section{title} частыми.
+\renewcommand\cftsubsecdotsep{\cftdot} %делает отточия после \section{title} частыми.
+
+\renewcommand{\cftchapfont}{\normalfont} % убирает \bf в оглавлении у chapter
+
+
+% % ВИСЯЧИЕ СТРОКИ
+\clubpenalty=10000 %управляет висячими строками в начале абзаца, по умолчанию 150. Чем больше число, тем меньше вероятность появления одиночных строк в конце листа, они если это возможно будут перенесены на следующий лист. Максимальное число 10000 - полный запрет висячих строк.
+\widowpenalty=10000 %аналогично, но в отношении последних строк абзаца.
+
+% \makeatletter
+% \renewcommand{\l@section}{\@dottedtocline{1}{0.4cm}{0.4cm}}
+% \renewcommand{\thesection}{\arabic{section}}
+% \renewcommand{\section}{\@startsection{section}{1}{1.25cm}{-3.5ex plus -1ex minus -.2ex}{2.3ex plus.2ex}{\raggedright\normalfont\bfseries}}
+% \makeatother
+
+% \makeatletter
+% \renewcommand{\l@subsection}{\@dottedtocline{2}{0.8cm}{0.8cm}}
+% \renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+% \renewcommand{\subsection}{\@startsection{subsection}{2}{1.25cm}{-3.5ex plus -1ex minus -.2ex}{2.3ex plus.2ex}{\raggedright\normalfont\bfseries}}
+% \makeatother
+
+% Оформление листинга
+\lstset{stepnumber=2,
+    basicstyle=\footnotesize\ttfamily,
+    captionpos=b,
+    frame=single,
+    numbers=left,
+    inputencoding=utf8,
+    extendedchars=\true,
+    belowcaptionskip=1\baselineskip,
+    xleftmargin=\parindent,
+    showstringspaces=false,
+    keywordstyle=\bfseries\color{green!40!black},
+    commentstyle=\itshape\color{purple!40!black},
+    identifierstyle=\color{blue},
+    stringstyle=\color{orange},
+    breaklines=true
+}
+
+
+\pagestyle{fancy}
+\fancyhf{}
+% \renewcommand{\footrulewidth}{0 mm}% толщина отделяющей полоски снизу
+% \renewcommand{\headrulewidth}{0 mm}% толщина отделяющей полоски сверху
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def \topicname {Разработка системы голосового управления для IVR}
+
+\def \fio {Мингазеев~Р.Л.}
+\def \fioa {Мингазеева~Р.Л.}
+\def \fiou {Мингазееву~Р.Л.}
+
+\def \faculty {ИВТ}
+\def \group {ИВ~--~521}
+
+\def \theadpos {}
+\def \thead {Крамаренко~К.Е.}
+\def \chief {Курносов~М.Г.}
+\def \chiefpos {д.\,т.\,н.~доцент}
+
+\def \town {Новосибирск}
+\def \year {2019}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\chap}[1]{\chapter*{#1}
+    \addcontentsline{toc}{chapter}{#1}
+}
+
+\newcommand{\pic}[4][h]{\def\lableName{fig:#3}
+    \begin{figure}[#1]
+        \centering
+        \includegraphics{#2}
+        \caption{#4}\label{\lableName}
+    \end{figure}
+}
+
+\fancypagestyle{firststyle}
+{
+    \fancyfoot[C]{
+        \normalsize
+        \town\,--\,\year
+    }
+    \fancy
+}
