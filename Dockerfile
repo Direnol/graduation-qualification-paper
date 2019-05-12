@@ -17,7 +17,7 @@ RUN \
 
 RUN \
     echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections &&\
-    apt install -y ttf-mscorefonts-installer texlive-lang-cyrillic
+    apt install -y ttf-mscorefonts-installer
 
 USER ${USER}
 VOLUME [ "${DIR}" ]

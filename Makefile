@@ -14,7 +14,7 @@ ifdef IN_TRAVIS
 endif
 
 tc:
-	docker build ${QUIET_DOCKER} \
+	@docker build ${QUIET_DOCKER} \
 		--tag=${TOOLCHAIN_NAME} \
 		.
 
