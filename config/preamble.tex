@@ -40,8 +40,12 @@
 \usepackage{lastpage}
 \usepackage{lipsum}
 \usepackage{titlesec}
+\bibliographystyle{ugost2008}
 
-\bibliographystyle{unsrt}
+
+\makeatletter
+\renewcommand{\@biblabel}[1]{#1.}
+\makeatother
 
 % Настройка вертикальных и горизонтальных отступов
 \titlespacing{\chapter}{\parindent}{-30pt}{12pt}[45pt]
@@ -125,6 +129,7 @@
 \fancyhf{}
 % \renewcommand{\footrulewidth}{0 mm}% толщина отделяющей полоски снизу
 % \renewcommand{\headrulewidth}{0 mm}% толщина отделяющей полоски сверху
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def \topicname {Разработка системы голосового управления для IVR}
 
@@ -135,7 +140,7 @@
 \def \faculty {ИВТ}
 \def \group {ИВ~--~521}
 
-\def \theadpos {}
+\def \theadpos {ст. преподователь}
 \def \thead {Крамаренко~К.Е.}
 \def \chief {Курносов~М.Г.}
 \def \chiefpos {д.\,т.\,н.~доцент}
