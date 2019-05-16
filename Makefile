@@ -33,7 +33,7 @@ build clean clean-all:
 raw-build: report.pdf thesis.pdf
 
 raw-clean:
-	latexmk -c
+	@latexmk -c
 
 raw-clean-all: raw-clean
-	latexmk -CA
+	@latexmk -CA
