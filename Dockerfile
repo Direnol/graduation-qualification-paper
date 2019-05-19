@@ -23,7 +23,7 @@ RUN \
 
 # Times New Roman and other fonts
 RUN wget http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb &&\
-    dpkg -i ttf-mscorefonts-installer_3.6_all.deb && rm -f ttf-mscorefonts-installer_3.6_all.deb &&\
+    dpkg -i ttf-mscorefonts-installer_3.6_all.deb || apt install -f && rm -f ttf-mscorefonts-installer_3.6_all.deb &&\
     wget -O /usr/share/fonts/xits-math.otf https://github.com/khaledhosny/xits-math/raw/master/XITSMath-Regular.otf && \
     wget http://www.paratype.ru/uni/public/PTSansOFL.zip && \
     wget http://www.paratype.ru/uni/public/PTMono.zip && \
