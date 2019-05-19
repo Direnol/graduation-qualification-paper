@@ -17,7 +17,7 @@ RUN \
 
 RUN \
     echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections &&\
-    apt update && apt install -y texlive-latex-extra \
+    apt update && apt install -y texlive-latex-extra sudo\
         texlive-fonts-extra wget git make apt-transport-https unzip && \
     echo "${USER} ALL=NOPASSWD: ALL" > /etc/sudoers.d/${USER}
 
