@@ -311,7 +311,6 @@ Threads.emplace_back(
 ...
 evhttp_set_gencb(EvHttp.get(), callback_recognize, &sa);
 event_base_dispatch(EventBase.get());
-...
 \end{lstlisting}
 
 Реализация обработки запроса состоит из следующих пунктов:
