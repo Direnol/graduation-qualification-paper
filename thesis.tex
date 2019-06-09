@@ -5,6 +5,7 @@
 
 \begin{document}
 
+\pagestyle{empty}
 \include{titles/title}
 \include{titles/question}
 \include{titles/annotation}
@@ -13,10 +14,21 @@
 \def\contentsname{Содержание} %преобразует Оглавление в Содержание
 \tableofcontents
 \thispagestyle{empty}
-\clearpage
 
+
+\newpage
+\pagestyle{fancy}
 \include{chapters/introduce}
+\include{chapters/task}
+\include{chapters/review}
+\include{chapters/choose}
+\include{chapters/design}
+\include{chapters/working}
+\include{chapters/mark}
 
+\include{chapters/conclusion}
+\include{library/library}
+\include{chapters/glossary}
 
 % \input{chapters/*}
 \end{document}

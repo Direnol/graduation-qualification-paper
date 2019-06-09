@@ -20,7 +20,6 @@
 \usepackage{indentfirst} % отделять первую строку раздела абзацным отступом
 \usepackage{textcomp}
 \usepackage{titlesec}
-\usepackage{fancyhdr}
 \usepackage[pdfborder={0 0 0}, colorlinks=false]{hyperref}
 \usepackage{listings}
 \usepackage{graphicx}
@@ -71,9 +70,11 @@
 
 \usepackage{tocloft}
 
-\renewcommand{\cfttoctitlefont}{\hspace{0.4\textwidth}} %уменьшаем размер шрифта и ровняем по центру
-% Межстрочные отступы в Оглавлении:
+\renewcommand{\cfttoctitlefont}{\hspace{0.4\textwidth}} %уменьшаем размер шрифта
+% и ровняем по центру межстрочные отступы в Оглавлении:
+
 \setlength{\cftbeforetoctitleskip}{-5mm} %отступ Оглавления от верхнего поля страницы.
+\setlength{\cftbeforechapskip}{1mm}
 
 % Отступы от левого поля:
 \setlength{\cftchapindent}{0mm} %отступ между левым полем и \chapter{}
@@ -127,10 +128,12 @@
 }
 
 
-\pagestyle{fancy}
+\usepackage{fancyhdr}
 \fancyhf{}
-% \renewcommand{\footrulewidth}{0 mm}% толщина отделяющей полоски снизу
-% \renewcommand{\headrulewidth}{0 mm}% толщина отделяющей полоски сверху
+\pagestyle{fancy}
+\fancyfoot[R]{\thepage} %prints the page number on the right side of the header
+\fancypagestyle{plain}{}
+\renewcommand{\headrulewidth}{0pt} % убрать разделительную линию
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def \topicname {Разработка системы голосового управления маршрутизацией звонков
@@ -170,10 +173,4 @@
         \town\,--\,\year
     }
     \fancy
-}
-% Секции без номеров (введение, заключение...), вместо section*{}
-\newcommand{\anonsection}[1]{
-    \phantomsection % Корректный переход по ссылкам в содержании
-    \paragraph{\centerline{{#1}}\vspace{1em}}
-    \addcontentsline{toc}{section}{#1}
 }
