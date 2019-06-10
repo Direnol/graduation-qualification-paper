@@ -46,6 +46,12 @@
 \renewcommand{\@biblabel}[1]{#1.}
 \makeatother
 
+\usepackage{totcount}
+\newtotcounter{citenum}
+\def\oldcite{}
+\let\oldcite=\bibcite
+\def\bibcite{\stepcounter{citenum}\oldcite}
+
 % Настройка вертикальных и горизонтальных отступов
 \titlespacing{\chapter}{\parindent}{-30pt}{12pt}[45pt]
 \titlespacing{\section}{\parindent}{13mm}{12pt}[45pt]
