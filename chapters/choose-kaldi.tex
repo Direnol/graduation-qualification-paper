@@ -1,0 +1,87 @@
+\section{Kaldi}
+\subsection{Сборка}
+Для сборки данного инструмента необходимо выполнить команды
+представленные в листинге~\ref{kaldi:build}. Данный процесс займёт много времени.
+Также необходимо скачать готовую языковую модель для русского языка, которая
+будет использоваться для запуска \textit{kaldi}.
+
+\begin{lstlisting}[caption={Сборка Kaldi}, label=kaldi:build]
+$ git clone https://github.com/kaldi-asr/kaldi
+$ cd kaldi
+$ cd tools
+$ extras/check_dependencies.sh
+$ make
+$ cd ../src
+$ ./configure --shared
+$ make
+\end{lstlisting}
+
+После сборки скачиваем языковую модель. Иерархия файлов модели представлена
+в выводе команды \texttt{tree} в листинге~\ref{kaldi:model}. Данная модель
+расположена в папке \texttt{/home/user/project/tdnn}.
+
+\begin{lstlisting}[caption={Структура языковой модели}, label={kaldi:model}]
+$ tree
+|- conf
+|   |- ivector_extractor.conf
+|   |- mfcc.conf
+|   |- online_cmvn.conf
+|   |- online.conf
+|   └- splice.conf
+|- final.mdl
+|- frame_subsampling_factor
+|- graph
+|   |- disambig_tid.int
+|   |- HCLG.fst
+|   |- num_pdfs
+|   |- phones.txt
+|   └- words.txt
+|- ivector_extractor
+|   |- final.dubm
+|   |- final.ie
+|   |- final.mat
+|   |- global_cmvn.stats
+|   |- online_cmvn.conf
+|   └- splice_opts
+└- tree
+\end{lstlisting}
+
+\subsection{Запуск}
+Для того, чтобы запустить данный инструмент для транслирования речи в текст~---~
+воспользуемся скриптом для запуска~\ref{kaldi:run}.
+
+\begin{figure}[h]
+\begin{lstlisting}[caption={Запуск Kaldi},label={kaldi:run}]
+#!/bin/bash
+export KALDI_ROOT=${HOME}/project/kaldi
+
+KALDI_PATH=$PWD/utils:$KALDI_ROOT/src/bin:$KALDI_ROOT/tools/openfst/bin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/fstbin:$KALDI_ROOT/src/gmmbin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/featbin:$KALDI_ROOT/src/lm
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/sgmmbin:$KALDI_ROOT/src/sgmm2bin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/fgmmbin:$KALDI_ROOT/src/latbin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/nnetbin:$KALDI_ROOT/src/nnet2bin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/online2bin:$KALDI_ROOT/src/ivectorbin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/lmbin:$KALDI_ROOT/src/chainbin
+KALDI_PATH=${KALDI_PATH}:$KALDI_ROOT/src/nnet3bin:$PWD:$PATH:$KALDI_ROOT/tools/sph2pipe_v2.5
+
+export PATH=${PATH}:${KALDI_PATH}
+
+export LC_ALL=C
+
+online2-wav-nnet3-latgen-faster \
+      --word-symbol-table=exp/tdnn/graph/words.txt \
+      --frame-subsampling-factor=3 --frames-per-chunk=51 \
+      --acoustic-scale=1.0 --beam=12.0 --lattice-beam=6.0 \
+      --max-active=10000 --config=exp/tdnn/conf/online.conf \
+      exp/tdnn/final.mdl exp/tdnn/graph/HCLG.fst \
+      ark:decoder-test.utt2spk scp:decoder-test.scp ark:- |
+    lattice-lmrescore --lm-scale=-1.0 ark:- 'fstproject --project_output=true data/lang_test_rescore/G.fst |' ark:- |
+    lattice-lmrescore-const-arpa ark:- data/lang_test_rescore/G.carpa ark:- |
+    lattice-align-words data/lang_test_rescore/phones/word_boundary.int exp/tdnn/final.mdl ark:- ark:- |
+    lattice-to-ctm-conf --frame-shift=0.03 --acoustic-scale=0.08333 ark:- - |
+    local/int2sym.pl -f 5 data/lang_test_rescore/words.txt - -
+\end{lstlisting}
+\end{figure}
+
+\subsection{Конфигурация}
