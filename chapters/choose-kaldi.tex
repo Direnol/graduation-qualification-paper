@@ -50,8 +50,7 @@ $ tree
 Для того, чтобы запустить данный инструмент для транслирования речи в текст~---~
 воспользуемся скриптом для запуска~\ref{kaldi:run}.
 
-\begin{figure}[h]
-\begin{lstlisting}[caption={Запуск Kaldi},label={kaldi:run}]
+\begin{lstlisting}[caption={Запуск Kaldi},label={kaldi:run},float=h]
 #!/bin/bash
 export KALDI_ROOT=${HOME}/project/kaldi
 
@@ -82,6 +81,5 @@ online2-wav-nnet3-latgen-faster \
     lattice-to-ctm-conf --frame-shift=0.03 --acoustic-scale=0.08333 ark:- - |
     local/int2sym.pl -f 5 data/lang_test_rescore/words.txt - -
 \end{lstlisting}
-\end{figure}
 
 \subsection{Конфигурация}
