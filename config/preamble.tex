@@ -64,15 +64,24 @@
 {\Large\hyphenpenalty=10000}
 {\thechapter~}{0pt}{\Large}
 
+\titleformat*{\chapter}
+{\Large}
+
 \titleformat{\section}
 {\large}
 {\thesection~}
 {0pt}{}
 
+\titleformat*{\section}
+{\large}
+
 \titleformat{\subsection}
 {\normalsize}
 {\thesubsection~}
 {0pt}{}
+
+\titleformat*{\subsection}
+{\normalsize}
 
 \usepackage{tocloft}
 
@@ -164,7 +173,7 @@
 \def \town {Новосибирск}
 \def \year {2019}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\chap}[1]{\chapter*{#1}
+\newcommand{\chap}[1]{\chapter*{\parbox{0.93\linewidth}{\centering #1}}
     \addcontentsline{toc}{chapter}{#1}
 }
 
