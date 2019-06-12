@@ -89,7 +89,7 @@ $ sox sample.wav -t raw -c 1 -b 16 -r 8k -e signed-integer - | nc -N localhost 5
 потока.
 
 Рассмотрим некоторые опции:
-\begin{itemize}
+\begin{itemize} \label{kaldi:options}
     \item sample-freq~---~частота дискретизации, на которой работает сервер и способен производить распознавания.
         По скольку аудио-поток с телефонных апаратов по умолчанию равен 8kHz, то и сервер работает на данной частоте;
     \item frames-per-chunk~---~количество чанков в секудну;

@@ -1,8 +1,356 @@
 \chapter{ПРОЕКТИРОВАНИЕ СИСТЕМЫ}
 
 \section{Структура взаимодействия}
+\pic[h!][0.7]{structure.png}{asr:struct}{Структура взаимодействия подсистем}
+
+На рисунке~\ref{fig:asr:struct} изображена общая структура взаимодействия подсистем.
+Рассмотрим её подробнее:
+\begin{itemize}
+    \item Подсистема ASR состоит из двух компонент;
+    \begin{enumerate}
+        \item HTTP-сервер~---~ отвечает за приём http-запросов и обработку api;
+        \item Kaldi~---~реализует процесс распознавания речи в текст.
+    \end{enumerate}
+    \item Nginx~---~выполняет роль прокси-сервера для балансировки запросов и
+        нормирование протокола HTTP;
+    \item MSR~---~является промежуточным звеном между IVR и ASR. Осуществялет маршрутизацию
+        аудио-потока, а также формирует HTTP-запрос с корректными заголовками;
+    \item IVR~---~подсистема голосового меню при взаимодействии с ядром шлюза ECSS10
+        осуществялется маршрутизация звонка;
+    \item ECSS10~---~шлюз ECSS10 осуществялет маршрутизацию и контроль над звонками;
+    \item Пользователь~---~клиент позвонивший на данный шлюз, перенаправленный на
+        общение с подсистемой IVR;
+\end{itemize}
+
+\section{Параметры запуска}
+\begin{lstlisting}[caption={Обработка аргументов},label={asr:init:options},language=C++]
+ostringstream usage;
+usage << "Description...";
+auto _usage = usage.str();
+auto po = make_unique<ParseOptions>(_usage.c_str());
+
+\end{lstlisting}
+
+Для того, чтобы управлять поведение подсистемы~---~воспользуемся встроенными
+средствами \textit{Kaldi} для чтения файлов конфигурации и параметров командной
+строки. Для этого необходимо создать объект типа \texttt{ParseOptions}, при этом
+необходимо передать строковый аргумент, который описывает как использовать данную
+подсистему, что изображено в листинге~\ref{asr:init:options}.
+
+\begin{lstlisting}[caption={Пример объявление параметров},label={asr:init:parameters},language=C++]
+this->chunk_length_secs = 0.18;
+this->output_period = 1;
+this->address = "0.0.0.0";
+this->port = 9000;
+this->thread_count = 1;
+po->Register("chunk-length", &chunk_length_secs,
+                "Length of chunk size in seconds, that we process.");
+
+po->Register("output-period", &output_period,
+                "How often in seconds, do we check for changes in output.");
+
+po->Register("num-threads-startup", &g_num_threads,
+                "Number of threads used when initializing iVector extractor.");
+
+po->Register("nnet3-in", &nnet3_rxfilename, "nnet3-in");
+po->Register("fst-in", &fst_rxfilename, "fst-in");
+po->Register("word-symbol-table", &word_syms_filename, "word-symbol-table");
+
+this->feature_opts.Register(po.get());
+this->decodable_opts.Register(po.get());
+this->decoder_opts.Register(po.get());
+this->endpoint_opts.Register(po.get());
+
+\end{lstlisting}
+
+Далее необходимо объявить параметры, пример показан в листинге~\ref{asr:init:parameters}.
+Для того, чтобы добавить новый параметр, требуется создать переменную и присвоить ей
+значение по умолчанию. После чего зарегестрировать данную параметр, передав:
+имя параметра, адрес переменной и описание. После объявление пользовательских
+параметров, требуется добавить параметры для \textit{Kaldi}~---~последние 4 строки в
+листинге~\ref{asr:init:parameters}.
+
+По итогу были добавлены следующие параметры:
+\begin{enumerate}
+    \item \texttt{address}~---~Адрес для прослушивания;
+    \item \texttt{port}~---~Порт для принятия соединений;
+    \item \texttt{workers}~---~Количество рабочих потоков;
+    \item \texttt{backlog}~---~Размер очереди при установлении tcp-соединения;
+\end{enumerate}
+Также, \textit{Kaldi} регистрирует параметры для установки частоты дискретизации,
+путь до языковой модели и длину чанка в секунду.
+
+Большая часть переменных содержится в классе, как приватные члены, для того, чтобы
+уменьшить количество памяти при инициализации \textit{Kaldi}.
+Данный процесс осуществляется функцией \texttt{kaldi\_init(int argc, char **argv)}.
 \section{HTTP-сервер}
+
+Для реализации HTTP-сервера используется библиотека \textit{libevent}, которая
+имеет дополнительный интерфейс для создания HTTP-сервера.
+
+Данная библиотека имеет возможность организовать многопоточное обслуживание клиентов,
+и инициализировать потоки, что позволяет избежать накладных расходов на инициализацию
+\textit{Kaldi} при каждом запросе на распознавание, а осуществить её только
+при запуске подсистемы.
+
+Рассмторим порядок запуска подсистемы:
+\begin{enumerate}
+    \item Загрзука файла с параметрами запуска;\label{asr:init:conf}
+    \item Создать объект для регистрации событий \texttt{event};\label{libevent:event:create}
+    \item Создать http-стркутуру для регистрации событий \texttt{evhttp}
+        на основе \texttt{event};\label{libevent:http:create}
+    \item Зарегестрировать сетевой адрес и порт для прослушивания;\label{libevent:http:bind}
+    \item Создать необходимое количество потоков;
+    \item Для каждого потока проделать пункт~\ref{libevent:http:create};
+    \item Каждый поток выполняет инициализацию \textit{Kaldi};
+    \item Ожидает поступления запросов.
+\end{enumerate}
+
+\begin{lstlisting}[caption={Создание базовых объектов для инициализации подсистемы},label={asr:http:init},language=C++]
+kaldi_init(argc, argv);
+
+this->base = new ptr_base(event_base_new(), &event_base_free);
+if (!base)
+    ASR_ERR << "Failed to create new base_event.";
+
+this->http = new ptr_http(evhttp_new(base->get()), &evhttp_free);
+
+if (!http)
+    ASR_ERR << "Failed to create new http event";
+
+auto BoundSock = evhttp_bind_socket_with_handle(http->get(), address.c_str(), port);
+if (!BoundSock)
+    ASR_ERR << "Failed to bind server socket.";
+
+if ((socket = evhttp_bound_socket_get_fd(BoundSock)) == -1)
+    ASR_ERR << "Failed to get server socket for next instance.";
+
+this->thread_count--;
+
+\end{lstlisting}
+
+В листинге~\ref{asr:http:init} представлен код конструктора класса, который
+выполняет действия, описанные в пунктах~\ref{asr:init:conf}~--~\ref{libevent:http:bind}.
+
 \section{Внешний интерфейс}
+
+Внешний интерфейс приложения осуществляется с помощью http-заголовков. Ниже
+првиведён список заголовков, которые определяеют подведение подсистемы:
+\begin{itemize}
+    \item \texttt{Content-Type}~---~тип аудио-потока;
+    \begin{itemize}
+        \item\texttt{audio/x-pcm}~---~ для \textit{pcm} формата;
+        \item\texttt{audio/x-wav}~---~ для \textit{wav} формата.
+    \end{itemize}
+    \item \texttt{SR-Key}~---~перечисленные через запятую фразы, которые необходимо распознать;
+    \begin{itemize}
+        \item Если данный заголовок пустой, то вовзращаем всё что было распознано.
+    \end{itemize}
+\end{itemize}
+
+\begin{lstlisting}[caption={Чтение заголовков},label={asr:http:headers},language=C++]
+auto headers_in = evhttp_request_get_input_headers(req);
+auto keys = evhttp_find_header(headers_in, "sr-key");
+auto type = evhttp_find_header(headers_in, "content-type");
+
+\end{lstlisting}
+
+В листинге~\ref{asr:http:headers} приводится пример чтения http-заголовков. На их
+основе решается какой алгоритм действий необходимо выполнить.
+
 \section{Настройка прокси-сервера}
+
+Для настройки прокси-сервера используется \textit{Nginx}, который осуществляет,
+при необходимости, балансировку запросов между несколькими экземлярами ASR, к
+тому же позволяет обращаться к нему по любой версии протокола HTTP.
+
+\begin{lstlisting}[caption={Пример конфигурации Nginx},label={nginx:conf}]
+location ~^\/(speech-recognition|asr) {
+    proxy_http_version 1.1;
+    proxy_request_buffering off;
+    proxy_pass http://localhost:9000;
+    proxy_method POST;
+}
+
+\end{lstlisting}
+
+В листинге~\ref{nginx:conf} приведена часть конфигурации \textit{Nginx},которая
+отвечает за проксирование запросов.
+
 \section{Интеграция Kaldi с HTTP-сервером}
+Ранее приводилась небольшая часть кода в листинге~\ref{asr:init:parameters}, где
+происходит определение параметров при помощи встроенных средств \textit{Kaldi}.
+
+Разберём подробнее процесс загрузки \textit{Kaldi}, а также метод интеграции
+данного инструмента с библиотекой \textit{libevent}.
+
+\begin{lstlisting}[caption={Создание обработчика событий},label=asr:libevent:callback,language=C++]
+evhttp_set_gencb(EvHttp.get(), callback_recognize, &sa);
+ASR_LOG << "Handler has been loaded...";
+event_base_dispatch(EventBase.get());
+
+\end{lstlisting}
+Библиотека \textit{libevent}, как ранее было описано, производит инициализацию
+необходимых объектов для регистрации и обработки событий, куда регистрируются
+http события. Каждому событию определяется обработчик. Так, например, определяется
+общий обработчик на все http события~(см. листинг~\ref{asr:libevent:callback}),
+после чего запускается бесконечный цикл для ожидания событий.
+
+Стоит отметить, что при реализации используется класс и следующие примеры вызываются
+в методах, у которых есть доступ к приватным членам класса. Также используются
+<<Resource Acquisition is Initialization>(\hyperlink{raii}{RAII})~---~
+захват ресурса есть инициализация, который позволяет создать объект и указать
+способ освобождения памяти при уничтожении объекта, когда он выходит за область
+видимости.
+
+\begin{lstlisting}[caption={Описание некоторых типов данных}, label={lst:class:types}]
+using ptr_base = unique_ptr<event_base, decltype(&event_base_free)>;
+using ptr_http = unique_ptr<evhttp, decltype(&evhttp_free)>;
+\end{lstlisting}
+
+В листинге~\ref{lst:class:types} представлены типы данных, уникальных указателей,
+которые реализуют RAII.
+
+\begin{lstlisting}[caption={структуры для хранения данных},label={asr:server_args},language=C++]
+struct kaldi_args {
+    OnlineNnet2FeaturePipelineInfo *feature_info{};
+    LatticeFasterDecoderConfig *decoder_opts{};
+    TransitionModel *trans_model{};
+    nnet3::DecodableNnetSimpleLoopedInfo *decodable_info{};
+    Fst<StdArc> *fst{};
+    BaseFloat chunk_length_secs{};
+    BaseFloat output_period{};
+    BaseFloat samp_freq{};
+    SymbolTable *word_syms{};
+    NnetSimpleLoopedComputationOptions *decodable_opts{};
+    OnlineEndpointConfig *endpoint_opts{};
+
+};
+
+struct server_args {
+//    http
+    string *sname{};
+    string *save_dir{};
+    bool save_rec{};
+
+//    kaldi
+    kaldi_args ka_arg{};
+};
+
+\end{lstlisting}
+
+На этапе чтения конфигурации все необходимые данные для распознавания речи
+были проинициализированы и хранятся в приватных членах класса. Поэтому при
+создании обработчика ему передаётся указатель на структуру, которая содержит
+указатели на необходимые данные~(см.~листинг~\ref{asr:server_args}). Это позволяет
+уменьшить объём памяти для хранения данных.
+
+
 \section{Конфигурация подсистемы}
+
+Для запуска подсистемы необходимо указать параметры, которые определяют:
+\begin{enumerate}
+    \item Языковую модель;
+    \item Адрес для установления tcp-соединения;
+    \item Качество распознавания.
+\end{enumerate}
+
+Список параметров првиведён на странице~\pageref{kaldi:options}.
+\begin{lstlisting}[caption={Запуск ASR},label={asr:run},language=bash]
+$ ecss-asr --config=config --config=exp/tdnn/conf/online.conf
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Содежимое config},label={asr:config},language=bash]
+# kaldi
+--frames-per-chunk=51
+--extra-left-context-initial=0
+--frame-subsampling-factor=3
+--min-active=200
+--max-active=10000
+--beam=15.0
+--lattice-beam=6.0
+--acoustic-scale=1.0
+# http
+--address=0.0.0.0
+--port=9000
+--sname=ECSS-ASR
+--workers=4
+# model
+--nnet3-in=exp/tdnn/final.mdl
+--fst-in=exp/tdnn/graph/HCLG.fst
+--word-symbol-table=exp/tdnn/graph/words.txt
+
+\end{lstlisting}
+
+
+Рассмотрим пример запуска \textit{ASR}, приведённый в листинге~\ref{asr:run}.
+Первый параметр определяет путь до конфигурационного файла, где перечислены
+остальные опции, это сделано для удобства настройки подсистемы. Следующий
+файл конфигурации определяет параметры для языковой модели.
+
+В конфигурационном файле~\ref{asr:config} перечислены опции для запуска по умолчанию.
+Параметры, относящиеся к конфигурации \textit{Kaldi}, были получены в ходе
+экспулатации подсистемы и на данный момент являются оптимальными для работы с
+аудио-потоком постпующим с телефонных апаратов. Другие параметры относятся к
+настройке HTTP-сервера и указанию языковой модели.
+
+
+\section{Создание systemd сервиса}
+\begin{lstlisting}[caption={Содежимое ecss-asr.service},label=asr:systemd]
+[Unit]
+Description=Daemon ecss-asr
+Wants=network-online.target ecss-restfs-core.service
+
+[Service]
+User=ssw
+WorkingDirectory=/usr/lib/ecss/ecss-asr/model/ru-RU
+Restart=on-failure
+ExecStart=/usr/bin/ecss-asr --config=/usr/lib/ecss/ecss-asr/config \
+                            --config=exp/tdnn/conf/online.conf
+
+[Install]
+Alias=ecss-asr.service
+WantedBy=multi-user.target
+
+\end{lstlisting}
+
+Для того, чтобы подсистема \textit{ASR} работала в режиме демона и была всегда
+активна, используется подсистема инициализации \textit{Systemd}, которая
+позволяет помимо запуска и перезапуска приложения, также регулировать
+привилегия и доступ к ресурсам ОС. В приведённом листинге~\ref{asr:systemd}
+показан запуск \textit{ASR} с помощью \textit{Systemd}.
+
+\section{Взаимодействие подсистем между собой}
+В ходе общения системы \textit{IVR} и клиента, система задаёт вопросы и сообщает фразы,
+которые ожидает услышать от клиента. Для того чтобы сообщить системе \textit{ASR}
+какие фразы являются ключевыми, система \textit{MSR} передаёт их в заголовке \texttt{SR-Key},
+например \texttt{SR-Key: конечно, да, может быть, нет}.
+
+После чего система \textit{MSR} перенаправляет аудио-поток клиента на \textit{ASR},
+при этом заполняя заголовок \texttt{Content-Type} соотвествующим \linebreak
+значением: \texttt{audio/x-wav} или \texttt{audio/x-pcm}, в зависимости от
+настроек \linebreak системы.
+
+Далее происходит процесс распознавания речи и поиска ключевых слов. При обнаружении
+ключевого слово система \textit{ASR} возвращает ответ со статусом 200, в тело которого
+вложено распознанное ключевое слово, иначе возвращается ответ со статусом 404.
+
+\section{Упаковка приложения в debian пакет}
+
+Для упрощения поставки данного приложения используется пакетная система \textit{debian}.
+Данная технология упрощает процесс развётывания приложения, а также его настройку.
+
+Приложение упаковывается в \textit{.tar.gz} архив, создавая необходимую иерархию
+относительно корня системы. Дополнительно имеется архив с установочными скриптами,
+которые осуществляют настройку пакета.При установке архив распаковывается
+в корень системы, после чего запускаются установочные скрипты, которые
+опрашивают пользователя о параметрах запуска приложения, устанавливают в систему
+systemd сервисы. Архив с приложением содержит:
+\begin{itemize}
+    \item Конфигурационный файл;
+    \item Исполняемый файл;
+    \item Набор необходимых библиотек;
+    \item Русскую языковую модель;
+    \item Файл systemd сервиса.
+\end{itemize}
