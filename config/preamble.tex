@@ -40,7 +40,7 @@
 \usepackage{lipsum}
 \usepackage{titlesec}
 \bibliographystyle{ugost2008}
-
+\patchcmd{\thebibliography}{\chapter*}{\section*}{}{}
 
 \makeatletter
 \renewcommand{\@biblabel}[1]{#1.}
@@ -65,7 +65,7 @@
 {\thechapter~}{0pt}{\Large}
 
 \titleformat{\section}
-{\normalsize}
+{\large}
 {\thesection~}
 {0pt}{}
 
@@ -95,6 +95,10 @@
 \renewcommand\cftsubsecdotsep{\cftdot} %делает отточия после \section{title} частыми.
 
 \renewcommand{\cftchapfont}{\normalfont} % убирает \bf в оглавлении у chapter
+\usepackage[tocflat]{tocstyle}
+\usepackage{setspace}
+\singlespacing
+\setlist{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.1cm}
 
 
 % % ВИСЯЧИЕ СТРОКИ
@@ -117,7 +121,7 @@
 \renewcommand{\lstlistingname}{Листинг}
 \lstset{stepnumber=2,
     basicstyle=\footnotesize\ttfamily,
-    captionpos=b,
+    captionpos=t,
     frame=single,
     numbers=left,
     inputencoding=utf8,

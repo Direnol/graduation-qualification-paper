@@ -4,6 +4,9 @@
 \graphicspath{{images/}}
 
 \begin{document}
+\renewcommand\bibname{
+    Список использованной литературы
+}
 
 \include{titles/title}
 \include{titles/question}
@@ -25,9 +28,12 @@
 \include{chapters/working}
 \include{chapters/mark}
 \include{chapters/conclusion}
-\include{library/library}
-\include{library/glossary}
-\include{library/attach}
+\chap{ПРИЛОЖЕНИЯ А}
+\input{library/library}
+\chap{ПРИЛОЖЕНИЯ Б}
+\input{library/glossary}
+\chap{ПРИЛОЖЕНИЯ В}
+\input{library/attach}
 
 % \input{chapters/*}
 \end{document}
