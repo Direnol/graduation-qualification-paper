@@ -39,6 +39,7 @@
 \usepackage{lastpage}
 \usepackage{lipsum}
 \usepackage{titlesec}
+\usepackage{fancyvrb}
 \bibliographystyle{ugost2008}
 \patchcmd{\thebibliography}{\chapter*}{\section*}{}{}
 
@@ -131,8 +132,8 @@
 \lstset{stepnumber=2,
     basicstyle=\footnotesize\ttfamily,
     captionpos=t,
-    frame=single,
-    numbers=left,
+    % frame=single,
+    % numbers=left,
     inputencoding=utf8,
     extendedchars=\true,
     belowcaptionskip=1\baselineskip,
@@ -143,7 +144,8 @@
     identifierstyle=\color{blue},
     stringstyle=\color{orange},
     breaklines=true,
-    texcl=true
+    texcl=true,
+    float=h!
 }
 
 
@@ -173,15 +175,18 @@
 \def \town {Новосибирск}
 \def \year {2019}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\chap}[1]{\chapter*{\parbox{0.93\linewidth}{\centering #1}}
+\newcommand{\chap}[1]{
+    \chapter*{\parbox{0.93\linewidth}{\centering #1}}
     \addcontentsline{toc}{chapter}{#1}
 }
-
-\newcommand{\pic}[4][h]{\def\lableName{fig:#3}
+\newcommand{\csection}[1]{
+    \section*{\parbox{0.93\linewidth}{\centering #1}}
+}
+\NewDocumentCommand{\pic}{O{h} O{1} mmm}{\def\lableName{fig:#4}
     \begin{figure}[#1]
         \centering
-        \includegraphics{#2}
-        \caption{#4}\label{\lableName}
+        \includegraphics[scale=#2]{#3}
+        \caption{#5}\label{\lableName}
     \end{figure}
 }
 

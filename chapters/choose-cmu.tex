@@ -1,8 +1,137 @@
 \section{CMU Sphinx}
 \subsection{Сборка}
+
+\begin{minipage}{\linewidth}
+
+\begin{lstlisting}[caption={Клонирование и сборка необходимых интсрументов},label={cmu:build},language=bash]
+$ git clone https://github.com/cmusphinx/sphinxbase.git
+$ cd sphinxbase && ./autogen.sh && make && cd ..
+$ git clone https://github.com/cmusphinx/pocketsphinx.git
+$ cd pocketsphinx && ./autogen.sh && make && cd ..
+$ git clone https://github.com/cmusphinx/sphinxtrain.git
+$ cd sphinxtrain && ./autogen.sh && make && cd ..
+\end{lstlisting}
+
+\end{minipage}
+В листинге~\ref{cmu:build} представлены команды для скачивания и сборки \textit{CMU Sphinx}.
+После данных действий необходимо скачать русскую языковую модель.
+
+\begin{minipage}{\linewidth}
+
+\begin{lstlisting}[caption={Иерархия языковой модели},label={cmu:model},language=bash]
+$ tree zero_ru_cont_8k_v3
+zero_ru_cont_8k_v3/
+|- COPYING
+|- decoder-test.sh
+|- decoder-test.wav
+|- README
+|- ru.dic
+|- ru.lm
+|- zero_ru.cd_cont_4000
+|   |- feat.params
+|   |- feature_transform
+|   |- mdef
+|   |- means
+|   |- mixture_weights
+|   |- noisedict
+|   |- transition_matrices
+|   - variances
+|- zero_ru.cd_ptm_4000
+|   |- feat.params
+|   |- mdef
+|   |- means
+|   |- mixture_weights
+|   |- noisedict
+|   |- sendump
+|   |- transition_matrices
+|   - variances
+- zero_ru.cd_semi_4000
+    |- feat.params
+    |- mdef
+    |- means
+    |- mixture_weights
+    |- noisedict
+    |- sendump
+    |- transition_matrices
+    - variances
+\end{lstlisting}
+\end{minipage}
+
+В листинге~\ref{cmu:model} представлена иерархия языковой модели.
+
 \subsection{Запуск}
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Запуск \textit{CMU Sphinx}. Вариант 1},label={cmu:config:1}]
+$ pocketsphinx_continuous \
+    -hmm zero_ru_cont_8k_v3/zero_ru.cd_cont_4000 \
+    -lm zero_ru_cont_8k_v3/ru.lm \
+    -dict zero_ru_cont_8k_v3/ru.dic \
+    -samprate 8000 \
+    -remove_noise no \
+    -nfft 512 -infile sample.wav
+\end{lstlisting}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[caption={Запуск \textit{CMU Sphinx}. Вариант 2},label={cmu:config:2}]
+$ pocketsphinx_continuous \
+    -hmm zero_ru_cont_8k_v3/zero_ru.cd_cont_4000 \
+    -jsgf ivr.jsgf \
+    -dict zero_ru_cont_8k_v3/ru.dic \
+    -samprate 8000 \
+    -remove_noise no \
+    -nfft 512 -infile yes_or_no.wav
+\end{lstlisting}
+\end{minipage}
+
+Возможны два варианта запуска данного инструмента:
+\begin{enumerate}
+    \item Используется языкова модель, которая транслирует всю речь в текст;
+    \item Используется грамматика, по которой происходит распознавание.
+\end{enumerate}
+
+Примеры запуска \textit{CMU Sphinx} в двух режимах представлено в
+листингах~\ref{cmu:config:1} и~\ref{cmu:config:2} соответвенно.\\
+
+\begin{minipage}{\linewidth}
+\captionof{lstlisting}{Пример грамматики}\label{cmu:jsgf}
+\begin{Verbatim}[fontsize=\footnotesize]
+#JSGF V1.0;
+grammar ivr;
+
+<answer> = (да|нет);
+<n1> = (ноль|один|два|три|четыре|пять|шесть|семь|восемь|девять);
+public <query> = (<answer> | <n1>);
+
+\end{Verbatim}
+\end{minipage}
+
+Для запуска во втором режиме используется грамматика в формате \textit{jsgf}.
+Инструкция \texttt{grammar} обозначает имя грамматики \texttt{ivr}. Далее
+идёт перечисление возможных токенов: \texttt{<имя токена> = набор токенов или/и лексем}.
+Символ \texttt{|} означает <<\textit{или}>>, то есть возможен любой токен из перечисленных.
+Скобочки группируют лексемы и токены. Инструкция \texttt{public} обозначает целевой символ.
+Рассмотрим пример представлен в листинге~\ref{cmu:jsgf}:
+\begin{itemize}
+    \item \texttt{grammar ivr}~---~обозначает имя грамматики;
+    \item \texttt{<answer> = (да|нет)}~---~вводит новый токен \texttt{answer},
+    который равен <<да>> или <<нет>>;
+    \item \texttt{public <query> = (<answer> | <n1>)}~---~Означает, что целевой
+        символ \texttt{query} может быть либо ответом: <<да>>,<<нет>>, либо цифрой.
+\end{itemize}
+
+\begin{lstlisting}[caption={Результат запуска 1 версии},label={cmu:res:1}, language=bash]
+# родион потапыч отсчитывал каждый новый вершок углубления и давно определил про себя
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Результат запуска 2 версии},label={cmu:res:2},language=bash]
+# да да нет
+\end{lstlisting}
+
+Как видно по результам работы~\ref{cmu:res:1} и~\ref{cmu:res:2} данный инструмент
+справляется с распознаванием речи в обоих режимах.
 \subsection{Конфигурация}
 
-\section{Проведение экспериметов}
-\section{Результаты экспериментов}
-\section{Оценка полученных результатов}
+Настройка данного иснтрумента ограничена, по скольку языковая модель вводит свои
+ограничения.
