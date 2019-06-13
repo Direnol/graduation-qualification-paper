@@ -1,3 +1,103 @@
 \chapter{ДЕМОНСТРАЦИЯ РАБОТЫ}
+
+Для демонстрации работы подсистемы установим и запустим на локальной машине ASR.
+\begin{lstlisting}[caption={Проверка systemd сервиса},label=asr:systemd:runned]
+$ systemctl status ecss-asr.service
+ecss-asr.service - Daemon ecss-asr
+    Loaded: loaded (/lib/systemd/system/ecss-asr.service; enabled; vendor preset: enabled)
+    Active: active (running) since Thu 2019-06-13 06:33:40 +07; 2min 4s ago
+    Main PID: 26123 (ecss-asr)
+    Tasks: 4 (limit: 4915)
+    CGroup: /system.slice/ecss-asr.service
+            |-26123 /usr/bin/ecss-asr --config=/usr/lib/ecss/ecss-asr/config \
+                                      --config=exp/tdnn/conf/online.conf
+
+LOG:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 14 orphan nodes.
+LOG:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 28 orphan components.
+LOG:Collapse():nnet-utils.cc:1378) Added 14 components, removed 28
+LOG:CompileLooped():nnet-compile-looped.cc:345) Spent 0.031635 seconds in looped compi
+LOG:RunPool():src/server.cpp:88) [140181775910528] Run pool...
+LOG:RunPool():src/server.cpp:98) [140181775910528] Server has been started...
+LOG:routine():src/server.cpp:27) [140181775910528] Handler has been loaded...
+LOG:routine():src/server.cpp:27) [140181655860992] Handler has been loaded...
+LOG:routine():src/server.cpp:27) [140181647468288] Handler has been loaded...
+LOG:routine():src/server.cpp:27) [140181415913216] Handler has been loaded...
+
+\end{lstlisting}
+
+В листинге~\ref{asr:systemd:runned} показан вывод команды, которая проверяет
+состояние \textit{systemd} сервиса, видно что приложение запущено, теперь возможно
+послать аудио-файл на распознавание с помощью утилиты \textit{curl}.
+
 \section{Поиск ключевых фраз}
+
+\begin{lstlisting}[caption={Поиск по ключевым фразам: да, нет}, label={asr:test:short:yes}]
+$ curl -H 'SR-Key: да, нет'  -H 'Content-Type: audio/x-wav' 127.1:9000 -T da.wav -v
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                               Dload  Upload   Total   Spent    Left  Speed
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to 127.1 (127.0.0.1) port 9000 (#0)
+> PUT /da.wav HTTP/1.1
+> Host: 127.1:9000
+> User-Agent: curl/7.58.0
+> Accept: */*
+> SR-Key: да, нет
+> Content-Type: audio/x-wav
+> Content-Length: 24044
+> Expect: 100-continue
+>
+< HTTP/1.1 100 Continue
+} [16384 bytes data]
+* We are completely uploaded and fine
+< HTTP/1.1 200 OK
+< Server: ECSS-ASR
+< X-Mode: By key
+< Date: Wed, 12 Jun 2019 23:45:21 GMT
+< Content-Length: 4
+< Content-Type: text/html; charset=ISO-8859-1
+<
+{ [4 bytes data]
+100 24048  100     4  100 24044     35   209k --:--:-- --:--:-- --:--:--  209k
+* Connection #0 to host 127.1 left intact
+# да
+
+\end{lstlisting}
+
+В выводе запроса на распозавание~\ref{asr:test:short:yes} показано, что приложение
+способно распознавать речь и искать ключевые фразы.
+
+
 \section{Преобразование речи в текст}
+\begin{lstlisting}[caption={Преобразование речи в текст}, label={asr:test:long}]
+$ curl  -H 'Content-Type: audio/x-wav' 127.1:9000 -T da.wav -v
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to 127.1 (127.0.0.1) port 9000 (#0)
+> PUT /da.wav HTTP/1.1
+> Host: 127.1:9000
+> User-Agent: curl/7.58.0
+> Accept: */*
+> Content-Type: audio/x-wav
+> Content-Length: 24044
+> Expect: 100-continue
+>
+< HTTP/1.1 100 Continue
+} [16384 bytes data]
+* We are completely uploaded and fine
+< HTTP/1.1 200 OK
+< Server: ECSS-ASR
+< X-Mode: Full recognize
+< Date: Wed, 12 Jun 2019 23:47:28 GMT
+< Content-Length: 7
+< Content-Type: text/html; charset=ISO-8859-1
+<
+{ [7 bytes data]
+#да да
+\end{lstlisting}
+
+
+В выводе запроса на распозавание~\ref{asr:test:long} показано, что приложение
+способно распознавать речь.
