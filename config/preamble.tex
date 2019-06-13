@@ -1,6 +1,8 @@
 \documentclass[a4paper]{report}
+\PassOptionsToPackage{russian,english}{babel}
 \usepackage[14pt]{extsizes} % для того чтобы задать нестандартный 14-ый размер шрифта
 \usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
 \usepackage{fontspec} % XeTeX
 \usepackage{xunicode} % Unicode для XeTeX
 \usepackage{xltxtra}  % Верхние и нижние индексы
@@ -14,7 +16,7 @@
 % Русский язык
 \usepackage{polyglossia}
 \setdefaultlanguage{russian}
-% \usepackage[russian]{babel}
+\usepackage[english,russian]{babel}
 \usepackage{setspace,amsmath}
 \usepackage[left=2cm, top=15mm, right=15mm, bottom=15mm, nohead, footskip=10mm]{geometry} % настройки полей документа
 \usepackage{indentfirst} % отделять первую строку раздела абзацным отступом
@@ -48,22 +50,7 @@
 \makeatletter
 \renewcommand{\@biblabel}[1]{#1.}
 \makeatother
-% Библиография: отступы и межстрочный интервал
-% \makeatletter
-% \renewenvironment{thebibliography}[1]
-%     {\section*{\refname}
-%         \list{\@biblabel{\@arabic\c@enumiv}}
-%            {\settowidth\labelwidth{\@biblabel{#1}}
-%             \leftmargin\labelsep
-%             \itemindent 16.7mm
-%             \@openbib@code
-%             \usecounter{enumiv}
-%             \let\p@enumiv\@empty
-%             \renewcommand\theenumiv{\@arabic\c@enumiv}
-%         }
-%         \setlength{\itemsep}{0pt}
-%     }
-% \makeatother
+
 
 \addto\captionsrussian{\renewcommand{\figurename}{Рисунок}}
 \DeclareCaptionLabelSeparator{dash}{~---~}
@@ -134,6 +121,14 @@
 \setlist{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.1cm}
 \setlist[enumerate]{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.3cm}
 
+\let\OLDthebibliography\thebibliography
+\renewcommand\thebibliography[1]{
+    \OLDthebibliography{#1}
+    \setlength{\parskip}{0pt}
+    \setlength{\itemsep}{0pt plus 0.3ex}
+}
+\fvset{xleftmargin=\parindent}
+
 % % ВИСЯЧИЕ СТРОКИ
 \clubpenalty=10000 %управляет висячими строками в начале абзаца, по умолчанию 150. Чем больше число, тем меньше вероятность появления одиночных строк в конце листа, они если это возможно будут перенесены на следующий лист. Максимальное число 10000 - полный запрет висячих строк.
 \widowpenalty=10000 %аналогично, но в отношении последних строк абзаца.
@@ -163,10 +158,10 @@
     aboveskip=6pt,
     xleftmargin=\parindent,
     showstringspaces=false,
-    keywordstyle=\bfseries\color{green!40!black},
-    commentstyle=\itshape\color{purple!40!black},
-    identifierstyle=\color{blue},
-    stringstyle=\color{orange},
+    keywordstyle=,
+    commentstyle=,
+    identifierstyle=,
+    stringstyle=,
     breaklines=true,
     texcl=true,
     float=h!
@@ -174,6 +169,9 @@
 \DeclareCaptionFormat{fmt}{\parbox{\linewidth}{\hspace{8mm}#1#2#3}}
 \captionsetup[lstlisting]{format=fmt,justification=raggedright}
 
+\makeatletter
+\def\verbatim{\footnotesize\@verbatim \frenchspacing\@vobeyspaces \@xverbatim}
+\makeatother
 \usepackage{fancyhdr}
 \fancyhf{}
 \pagestyle{fancy}
@@ -190,7 +188,7 @@
 \def \fiou {Мингазееву~Р.Л.}
 
 \def \faculty {ИВТ}
-\def \group {ИВ~--~521}
+\def \group {ИВ-521}
 
 \def \theadpos {ст. преподователь}
 \def \thead {Крамаренко~К.Е.}
