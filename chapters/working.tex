@@ -68,8 +68,31 @@ $ curl -H 'SR-Key: да, нет'  -H 'Content-Type: audio/x-wav' 127.1:9000 -T d
 
 \end{lstlisting}
 
+Рассмотрим последовательно, как происходит процесс работы ASR для коротких фраз
+в листинге~\ref{asr:text:short:back}. Можно наблюдать следующие действия:
+\begin{enumerate}
+    \item Определение \textit{URI};
+    \item Чтение заголовков;
+    \item Выбор поведения;
+    \item Промежуточные распознанные фразы;
+    \item Обнаружение заданной фразы.
+\end{enumerate}
+
+\begin{lstlisting}[caption={Процесс ASR для поиска ключевых фраз},label={asr:text:short:back}]
+LOG (ecss-asr[5.5.307~1-bbfd]:callback_recognize():src/asr.cpp:230) [140181415913216] Uri: /da.wav
+LOG (ecss-asr[5.5.307~1-bbfd]:callback_recognize():src/asr.cpp:233) [140181415913216] Content-Type: audio/x-wav
+LOG (ecss-asr[5.5.307~1-bbfd]:_callback_recognize():src/asr.cpp:62) [140181415913216] X-Mode: 'By key': да, нет
+LOG (ecss-asr[5.5.307~1-bbfd]:LatticeToString():src/asr_helpers.cpp:54) [140181415913216] Found: да
+LOG (ecss-asr[5.5.307~1-bbfd]:_callback_recognize():src/asr.cpp:176) [140181415913216] Recognized: 'да'
+
+\end{lstlisting}
+
+
 \section{Преобразование речи в текст}
-\begin{lstlisting}[caption={Преобразование речи в текст}, label={asr:test:long}]
+В выводе запроса на распозавание~\ref{asr:test:long} показано, что приложение
+способно распознавать речь.
+
+\begin{lstlisting}[caption={Преобразование речи в текст со стороны клиента}, label={asr:test:long}]
 $ curl  -H 'Content-Type: audio/x-wav' 127.1:9000 -T da.wav -v
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
@@ -98,6 +121,21 @@ $ curl  -H 'Content-Type: audio/x-wav' 127.1:9000 -T da.wav -v
 #да да
 \end{lstlisting}
 
+Также можно наблюдать в листинге~\ref{kaldi:test:long:back} как происходит обработка
+запроса:
+\begin{enumerate}
+    \item Определение \textit{URI};
+    \item Чтение заголовков;
+    \item Выбор необходимого поведения;
+    \item Промежуточные варианты распознанной речи;
+    \item Конечный результат.
+\end{enumerate}
 
-В выводе запроса на распозавание~\ref{asr:test:long} показано, что приложение
-способно распознавать речь.
+\begin{lstlisting}[caption={Процесс ASR для преобразования речи в текст},label={kaldi:test:long:back}]
+LOG (ecss-asr[5.5.307~1-bbfd]:callback_recognize():src/asr.cpp:230) [140181415913216] Uri: /da.wav
+LOG (ecss-asr[5.5.307~1-bbfd]:callback_recognize():src/asr.cpp:233) [140181415913216] Content-Type: audio/x-wav
+LOG (ecss-asr[5.5.307~1-bbfd]:_callback_recognize():src/asr.cpp:64) [140181415913216] X-Mode: 'Full Recognize'
+LOG (ecss-asr[5.5.307~1-bbfd]:LatticeToString():src/asr_helpers.cpp:54) [140181415913216] Found: да
+LOG (ecss-asr[5.5.307~1-bbfd]:LatticeToString():src/asr_helpers.cpp:54) [140181415913216] Found: да
+
+\end{lstlisting}
