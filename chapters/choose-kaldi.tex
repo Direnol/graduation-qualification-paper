@@ -20,8 +20,6 @@ $ make
 в выводе команды \texttt{tree} в листинге~\ref{kaldi:model}. Данная модель
 расположена в папке \texttt{/home/user/project/tdnn}.
 
-\begin{minipage}{\textwidth}
-
 \begin{lstlisting}[caption={Структура языковой модели}, label={kaldi:model}]
 $ tree exp/tdnn
 exp/tdnn
@@ -48,7 +46,6 @@ exp/tdnn
 |   └- splice_opts
 └- tree
 \end{lstlisting}
-\end{minipage}
 
 \subsection{Запуск}
 Для запуска и проверки работоспособности запустим tcp-сервер командой~\ref{kaldi:run}.
@@ -73,11 +70,9 @@ MODEL="${PWD}/exp/tdnn"
 $ sox sample.wav -t raw -c 1 -b 16 -r 8k -e signed-integer - | nc -N localhost 5050
 \end{lstlisting}
 
-\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Результат работы сервера распознавания речи}, label={kaldi:run:res},language=bash]
 # родион потапыч высчитывал каждый новый вершок углубление и давно определил про себя
 \end{lstlisting}
-\end{minipage}
 
 \subsection{Конфигурация}
 

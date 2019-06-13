@@ -1,7 +1,6 @@
 \chapter{ПРОЕКТИРОВАНИЕ СИСТЕМЫ}
 
 \section{Структура взаимодействия}
-\pic[h!][0.7]{structure.png}{asr:struct}{Структура взаимодействия подсистем}
 
 На рисунке~\ref{fig:asr:struct} изображена общая структура взаимодействия подсистем.
 Рассмотрим её подробнее:
@@ -22,7 +21,15 @@
         общение с подсистемой IVR;
 \end{itemize}
 
+\pic[h!][0.7]{structure.png}{asr:struct}{Структура взаимодействия подсистем}
+
 \section{Параметры запуска}
+Для того, чтобы управлять поведение подсистемы~---~воспользуемся встроенными
+средствами \textit{Kaldi} для чтения файлов конфигурации и параметров командной
+строки. Для этого необходимо создать объект типа \texttt{ParseOptions}, при этом
+необходимо передать строковый аргумент, который описывает как использовать данную
+подсистему, что изображено в листинге~\ref{asr:init:options}.
+
 \begin{lstlisting}[caption={Обработка аргументов},label={asr:init:options},language=C++]
 ostringstream usage;
 usage << "Description...";
@@ -31,11 +38,12 @@ auto po = make_unique<ParseOptions>(_usage.c_str());
 
 \end{lstlisting}
 
-Для того, чтобы управлять поведение подсистемы~---~воспользуемся встроенными
-средствами \textit{Kaldi} для чтения файлов конфигурации и параметров командной
-строки. Для этого необходимо создать объект типа \texttt{ParseOptions}, при этом
-необходимо передать строковый аргумент, который описывает как использовать данную
-подсистему, что изображено в листинге~\ref{asr:init:options}.
+Далее необходимо объявить параметры, пример показан в листинге~\ref{asr:init:parameters}.
+Для того, чтобы добавить новый параметр, требуется создать переменную и присвоить ей
+значение по умолчанию. После чего зарегестрировать данную параметр, передав:
+имя параметра, адрес переменной и описание. После объявление пользовательских
+параметров, требуется добавить параметры для \textit{Kaldi}~---~последние 4 строки в
+листинге~\ref{asr:init:parameters}.
 
 \begin{lstlisting}[caption={Пример объявление параметров},label={asr:init:parameters},language=C++]
 this->chunk_length_secs = 0.18;
@@ -62,13 +70,6 @@ this->decoder_opts.Register(po.get());
 this->endpoint_opts.Register(po.get());
 
 \end{lstlisting}
-
-Далее необходимо объявить параметры, пример показан в листинге~\ref{asr:init:parameters}.
-Для того, чтобы добавить новый параметр, требуется создать переменную и присвоить ей
-значение по умолчанию. После чего зарегестрировать данную параметр, передав:
-имя параметра, адрес переменной и описание. После объявление пользовательских
-параметров, требуется добавить параметры для \textit{Kaldi}~---~последние 4 строки в
-листинге~\ref{asr:init:parameters}.
 
 По итогу были добавлены следующие параметры:
 \begin{enumerate}
@@ -106,6 +107,10 @@ this->endpoint_opts.Register(po.get());
     \item Ожидает поступления запросов.
 \end{enumerate}
 
+В листинге~\ref{asr:http:init} представлен код конструктора класса, который
+выполняет действия, описанные в пунктах~\ref{asr:init:conf}~--~\ref{libevent:http:bind}.
+
+
 \begin{lstlisting}[caption={Создание базовых объектов для инициализации подсистемы},label={asr:http:init},language=C++]
 kaldi_init(argc, argv);
 
@@ -129,9 +134,6 @@ this->thread_count--;
 
 \end{lstlisting}
 
-В листинге~\ref{asr:http:init} представлен код конструктора класса, который
-выполняет действия, описанные в пунктах~\ref{asr:init:conf}~--~\ref{libevent:http:bind}.
-
 \section{Внешний интерфейс}
 
 Внешний интерфейс приложения осуществляется с помощью http-заголовков. Ниже
@@ -148,6 +150,9 @@ this->thread_count--;
     \end{itemize}
 \end{itemize}
 
+В листинге~\ref{asr:http:headers} приводится пример чтения http-заголовков. На их
+основе решается какой алгоритм действий необходимо выполнить.
+
 \begin{lstlisting}[caption={Чтение заголовков},label={asr:http:headers},language=C++]
 auto headers_in = evhttp_request_get_input_headers(req);
 auto keys = evhttp_find_header(headers_in, "sr-key");
@@ -155,14 +160,14 @@ auto type = evhttp_find_header(headers_in, "content-type");
 
 \end{lstlisting}
 
-В листинге~\ref{asr:http:headers} приводится пример чтения http-заголовков. На их
-основе решается какой алгоритм действий необходимо выполнить.
-
 \section{Настройка прокси-сервера}
 
 Для настройки прокси-сервера используется \textit{Nginx}, который осуществляет,
 при необходимости, балансировку запросов между несколькими экземлярами ASR, к
 тому же позволяет обращаться к нему по любой версии протокола HTTP.
+
+В листинге~\ref{nginx:conf} приведена часть конфигурации \textit{Nginx},которая
+отвечает за проксирование запросов.
 
 \begin{lstlisting}[caption={Пример конфигурации Nginx},label={nginx:conf}]
 location ~^\/(speech-recognition|asr) {
@@ -174,9 +179,6 @@ location ~^\/(speech-recognition|asr) {
 
 \end{lstlisting}
 
-В листинге~\ref{nginx:conf} приведена часть конфигурации \textit{Nginx},которая
-отвечает за проксирование запросов.
-
 \section{Интеграция Kaldi с HTTP-сервером}
 Ранее приводилась небольшая часть кода в листинге~\ref{asr:init:parameters}, где
 происходит определение параметров при помощи встроенных средств \textit{Kaldi}.
@@ -184,18 +186,17 @@ location ~^\/(speech-recognition|asr) {
 Разберём подробнее процесс загрузки \textit{Kaldi}, а также метод интеграции
 данного инструмента с библиотекой \textit{libevent}.
 
-\begin{lstlisting}[caption={Создание обработчика событий},label=asr:libevent:callback,language=C++]
-evhttp_set_gencb(EvHttp.get(), callback_recognize, &sa);
-ASR_LOG << "Handler has been loaded...";
-event_base_dispatch(EventBase.get());
-
-\end{lstlisting}
-
 Библиотека \textit{libevent}, как ранее было описано, производит инициализацию
 необходимых объектов для регистрации и обработки событий, куда регистрируются
 http события. Каждому событию определяется обработчик. Так, например, определяется
 общий обработчик на все http события~(см. листинг~\ref{asr:libevent:callback}),
 после чего запускается бесконечный цикл для ожидания событий.
+
+\begin{lstlisting}[caption={Создание обработчика событий},label=asr:libevent:callback,language=C++]
+evhttp_set_gencb(EvHttp.get(), callback_recognize, &sa);
+ASR_LOG << "Handler has been loaded...";
+event_base_dispatch(EventBase.get());
+\end{lstlisting}
 
 Стоит отметить, что при реализации используется класс и следующие примеры вызываются
 в методах, у которых есть доступ к приватным членам класса. Также используются
@@ -298,6 +299,12 @@ $ ecss-asr --config=config --config=exp/tdnn/conf/online.conf
 
 
 \section{Создание systemd сервиса}
+Для того, чтобы подсистема \textit{ASR} работала в режиме демона и была всегда
+активна, используется подсистема инициализации \textit{Systemd}, которая
+позволяет помимо запуска и перезапуска приложения, также регулировать
+привилегия и доступ к ресурсам ОС. В приведённом листинге~\ref{asr:systemd}
+показан запуск \textit{ASR} с помощью \textit{Systemd}.
+
 \begin{lstlisting}[caption={Содежимое ecss-asr.service},label=asr:systemd]
 [Unit]
 Description=Daemon ecss-asr
@@ -315,12 +322,6 @@ Alias=ecss-asr.service
 WantedBy=multi-user.target
 
 \end{lstlisting}
-
-Для того, чтобы подсистема \textit{ASR} работала в режиме демона и была всегда
-активна, используется подсистема инициализации \textit{Systemd}, которая
-позволяет помимо запуска и перезапуска приложения, также регулировать
-привилегия и доступ к ресурсам ОС. В приведённом листинге~\ref{asr:systemd}
-показан запуск \textit{ASR} с помощью \textit{Systemd}.
 
 \section{Взаимодействие подсистем между собой}
 В ходе общения системы \textit{IVR} и клиента, система задаёт вопросы и сообщает фразы,

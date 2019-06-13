@@ -48,6 +48,22 @@
 \makeatletter
 \renewcommand{\@biblabel}[1]{#1.}
 \makeatother
+% Библиография: отступы и межстрочный интервал
+% \makeatletter
+% \renewenvironment{thebibliography}[1]
+%     {\section*{\refname}
+%         \list{\@biblabel{\@arabic\c@enumiv}}
+%            {\settowidth\labelwidth{\@biblabel{#1}}
+%             \leftmargin\labelsep
+%             \itemindent 16.7mm
+%             \@openbib@code
+%             \usecounter{enumiv}
+%             \let\p@enumiv\@empty
+%             \renewcommand\theenumiv{\@arabic\c@enumiv}
+%         }
+%         \setlength{\itemsep}{0pt}
+%     }
+% \makeatother
 
 \addto\captionsrussian{\renewcommand{\figurename}{Рисунок}}
 \DeclareCaptionLabelSeparator{dash}{~---~}
@@ -116,7 +132,7 @@
 \usepackage{setspace}
 \singlespacing
 \setlist{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.1cm}
-
+\setlist[enumerate]{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.3cm}
 
 % % ВИСЯЧИЕ СТРОКИ
 \clubpenalty=10000 %управляет висячими строками в начале абзаца, по умолчанию 150. Чем больше число, тем меньше вероятность появления одиночных строк в конце листа, они если это возможно будут перенесены на следующий лист. Максимальное число 10000 - полный запрет висячих строк.
@@ -143,7 +159,8 @@
     % numbers=left,
     inputencoding=utf8,
     extendedchars=\true,
-    belowcaptionskip=1\baselineskip,
+    % belowcaptionskip=\parindent,
+    aboveskip=6pt,
     xleftmargin=\parindent,
     showstringspaces=false,
     keywordstyle=\bfseries\color{green!40!black},
@@ -154,7 +171,8 @@
     texcl=true,
     float=h!
 }
-
+\DeclareCaptionFormat{fmt}{\parbox{\linewidth}{\hspace{8mm}#1#2#3}}
+\captionsetup[lstlisting]{format=fmt,justification=raggedright}
 
 \usepackage{fancyhdr}
 \fancyhf{}
@@ -164,8 +182,8 @@
 \renewcommand{\headrulewidth}{0pt} % убрать разделительную линию
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def \topicname {Разработка системы голосового управления маршрутизацией звонков
-                для абонентского шлюза ECSS10}
+\def \topicname {Разработка \mbox{системы} голосового управления маршрутизацией звонков
+                для \mbox{абонентского} шлюза ECSS10}
 
 \def \fio {Мингазеев~Р.Л.}
 \def \fioa {Мингазеева~Р.Л.}
