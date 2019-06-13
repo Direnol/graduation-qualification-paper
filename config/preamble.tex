@@ -23,7 +23,7 @@
 \usepackage[pdfborder={0 0 0}, colorlinks=false]{hyperref}
 \usepackage{listings}
 \usepackage{graphicx}
-\usepackage{caption}
+\usepackage[justification=centering]{caption}
 \usepackage{color}
 \usepackage{xcolor}
 \usepackage{ifthen}
@@ -49,6 +49,11 @@
 \renewcommand{\@biblabel}[1]{#1.}
 \makeatother
 
+\addto\captionsrussian{\renewcommand{\figurename}{Рисунок}}
+\DeclareCaptionLabelSeparator{dash}{~---~}
+\captionsetup{
+   labelsep=dash
+}
 \usepackage{totcount}
 \newtotcounter{citenum}
 \def\oldcite{}

@@ -30,18 +30,6 @@
     \item Данные, отделённые от заголовков пустой строкой.
 \end{enumerate}
 
-\begin{lstlisting}[caption={Общая структура HTTP протокола}, label={lst:http:struct}]
-<Method> <URI> <Version>\r\n
-Host: <example.com>\r\n
-User-Agent: <agent>\r\n
-Header1: <val1>\r\n
-Header2: <val2>\r\n
-...
-HeaderN: <valN>\r\n
-\r\n
-Payload
-\end{lstlisting}
-
 В листинге~\ref{lst:http:struct} представлена общая структура протокола HTTP.
 \begin{itemize}
     \item Method --- метод обращения к серверу.
@@ -69,12 +57,24 @@ Payload
     \item Payload --- данные передаваемые от клиента к серверу.
 \end{itemize}
 
+\begin{lstlisting}[caption={Общая структура HTTP протокола}, label={lst:http:struct}]
+<Method> <URI> <Version>\r\n
+Host: <example.com>\r\n
+User-Agent: <agent>\r\n
+Header1: <val1>\r\n
+Header2: <val2>\r\n
+...
+HeaderN: <valN>\r\n
+\r\n
+Payload
+\end{lstlisting}
 Также существует специальный заголовок \texttt{Transfer-Encoding}, который при
 значении \texttt{chunked} позволяет сообщить, что будет происходить потоковая передача.
 При такой передачи данных клиент посылает размер в шестнадцатеричной системе
 счисления следующего куска данных, после чего отсылает данный кусок данных, и
 повторяет данную процедуру необходимое число раз. \mbox{Когда} клиент закончил передачу данных,
-он сообщает серверу, что следующий кусок данных содержит 0 байт.
+он сообщает серверу, что следующий кусок данных содержит 0 байт. Пример использования
+данного заголовка представлен \linebreak в~листинге~\ref{lst:http:chunked}.
 
 \begin{lstlisting}[caption={Пример \texttt{Transfer-Encoding: chunked}}, label={lst:http:chunked}]
 POST /path/to/file HTTP/1.1\r\n

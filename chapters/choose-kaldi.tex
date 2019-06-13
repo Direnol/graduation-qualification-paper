@@ -1,20 +1,24 @@
 \section{Kaldi}
 \subsection{Сборка}
-\begin{lstlisting}[caption={Сборка Kaldi}, label=kaldi:build]
-    $ git clone https://github.com/kaldi-asr/kaldi
-    $ cd kaldi
-    $ cd tools
-    $ extras/check_dependencies.sh
-    $ make
-    $ cd ../src
-    $ ./configure --shared
-    $ make
-\end{lstlisting}
-
 Для сборки данного инструмента необходимо выполнить команды
 представленные в листинге~\ref{kaldi:build}. Данный процесс займёт много времени.
 Также необходимо скачать готовую языковую модель для русского языка, которая
 будет использоваться для запуска \textit{kaldi}.
+
+\begin{lstlisting}[caption={Сборка Kaldi}, label=kaldi:build]
+$ git clone https://github.com/kaldi-asr/kaldi
+$ cd kaldi
+$ cd tools
+$ extras/check_dependencies.sh
+$ make
+$ cd ../src
+$ ./configure --shared
+$ make
+\end{lstlisting}
+
+После сборки скачиваем языковую модель. Иерархия файлов модели представлена
+в выводе команды \texttt{tree} в листинге~\ref{kaldi:model}. Данная модель
+расположена в папке \texttt{/home/user/project/tdnn}.
 
 \begin{minipage}{\textwidth}
 
@@ -46,12 +50,11 @@ exp/tdnn
 \end{lstlisting}
 \end{minipage}
 
-
-После сборки скачиваем языковую модель. Иерархия файлов модели представлена
-в выводе команды \texttt{tree} в листинге~\ref{kaldi:model}. Данная модель
-расположена в папке \texttt{/home/user/project/tdnn}.
-
 \subsection{Запуск}
+Для запуска и проверки работоспособности запустим tcp-сервер командой~\ref{kaldi:run}.
+После передадим аудио-файл в формате \textit{wav} в tcp-сервер командной~\ref{kaldi:run:check}.
+\linebreak Распознанный текст совпадает с тем, что было в данном аудио-файле.
+
 \begin{lstlisting}[caption={Запуск tcp-сервера},label={kaldi:run},language=bash]
 #!/bin/bash
 MODEL="${PWD}/exp/tdnn"
@@ -69,10 +72,6 @@ MODEL="${PWD}/exp/tdnn"
 \begin{lstlisting}[caption={Передача аудио-файла на распознавание речи},label={kaldi:run:check},language=bash]
 $ sox sample.wav -t raw -c 1 -b 16 -r 8k -e signed-integer - | nc -N localhost 5050
 \end{lstlisting}
-
-Для запуска и проверки работоспособности запустим tcp-сервер командой~\ref{kaldi:run}.
-После передадим аудио-файл в формате \textit{wav} в tcp-сервер командной~\ref{kaldi:run:check}.
-Распознанный текст совпадает с тем, что было в данном аудио-файле.
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Результат работы сервера распознавания речи}, label={kaldi:run:res},language=bash]
