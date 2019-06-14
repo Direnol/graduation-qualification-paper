@@ -13,12 +13,13 @@
 \include{titles/annotation}
 \include{titles/review}
 
+\pagestyle{fancy}
+
 \def\contentsname{Содержание} %преобразует Оглавление в Содержание
 \tableofcontents
-\thispagestyle{empty}
+% \thispagestyle{empty}
 
-\addtocontents{toc}{\protect\thispagestyle{empty}}
-\pagestyle{fancy}
+% \addtocontents{toc}{\protect\thispagestyle{empty}}
 \include{chapters/introduce}
 \include{chapters/task}
 \include{chapters/review}

@@ -57,6 +57,9 @@
 \captionsetup{
    labelsep=dash
 }
+\usepackage{float}
+
+
 \usepackage{totcount}
 \newtotcounter{citenum}
 \newtotcounter{picnum}
@@ -119,8 +122,9 @@
 \usepackage[tocflat]{tocstyle}
 \usepackage{setspace}
 \singlespacing
-\setlist{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.1cm}
-\setlist[enumerate]{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.3cm}
+\setlist{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=1.8cm}
+\setlist[enumerate]{nolistsep,itemsep=0cm,parsep=0pt,leftmargin=2cm}
+\parindent=1.5cm
 
 \let\OLDthebibliography\thebibliography
 \renewcommand\thebibliography[1]{
@@ -167,7 +171,7 @@
     texcl=true,
     float=h!
 }
-\DeclareCaptionFormat{fmt}{\parbox{\linewidth}{\hspace{8mm}#1#2#3}}
+\DeclareCaptionFormat{fmt}{\parbox{\linewidth}{\hspace{15mm}#1#2#3}}
 \captionsetup[lstlisting]{format=fmt,justification=raggedright}
 
 \makeatletter
