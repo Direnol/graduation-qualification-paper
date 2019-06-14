@@ -59,6 +59,7 @@
 }
 \usepackage{totcount}
 \newtotcounter{citenum}
+\newtotcounter{picnum}
 \def\oldcite{}
 \let\oldcite=\bibcite
 \def\bibcite{\stepcounter{citenum}\oldcite}
@@ -206,6 +207,7 @@
     \section*{\parbox{0.93\linewidth}{\centering #1}}
 }
 \NewDocumentCommand{\pic}{O{h} O{1} mmm}{\def\lableName{fig:#4}
+    \stepcounter{picnum}
     \begin{figure}[#1]
         \centering
         \includegraphics[scale=#2]{#3}
