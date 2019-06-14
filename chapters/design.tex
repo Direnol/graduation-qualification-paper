@@ -98,6 +98,7 @@ this->endpoint_opts.Register(po.get());
 Рассмторим порядок запуска подсистемы:
 \begin{enumerate}
     \item Загрзука файла с параметрами запуска;\label{asr:init:conf}
+    \item Инициализация \textit{Kaldi};\label{asr:init:kaldi}
     \item Создать объект для регистрации событий \texttt{event};\label{libevent:event:create}
     \item Создать http-стркутуру для регистрации событий \texttt{evhttp}
         на основе \texttt{event};\label{libevent:http:create}
@@ -133,6 +134,44 @@ if ((socket = evhttp_bound_socket_get_fd(BoundSock)) == -1)
 
 this->thread_count--;
 
+\end{lstlisting}
+
+Для создания нескольких потоков для обслуживания, необходимо на каждый новый поток
+объявить новый экземляр структуры для хранения http событий и привязать его к
+соотвествующему сокету. После чего добавляем ссылку на созданный поток в вектор,
+чтобы иметь возможность дождаться его завершения. По скольку создание нового
+потока является динамическим, за исключением главного потока, ему также
+передаётся $\lambda$-функция, в которой описаны действия, чтобы освободить
+память и прекратить выполнение бесконечного цикла. Данный процесс показан
+в листинге~\ref{asr:pool:create}.
+
+\begin{lstlisting}[caption={Создание потоков для обслуживания},label={asr:pool:create}]
+for (int i = 0; i < this->thread_count; ++i) {
+    ptr_base EventBase(event_base_new(), &event_base_free);
+    if (!EventBase)
+        throw runtime_error("Failed to create new base_event.");
+
+    ptr_http EvHttp(evhttp_new(EventBase.get()), &evhttp_free);
+
+    if (!EvHttp)
+        throw runtime_error("Failed to create new evhttp.");
+
+    if (evhttp_accept_socket(EvHttp.get(), socket) == -1)
+        throw runtime_error("Failed to bind server socket for new instance.");
+
+    auto signal_int = evsignal_new(EventBase.get(), SIGINT, signal_cb, EventBase.get());
+    auto destruct =
+        [signal_int](thread *t) {
+        event_add(signal_int, nullptr);
+        raise(SIGINT);
+
+        t->join();
+        delete t;
+    };
+    Threads.emplace_back(
+            new thread(routine, move(EvHttp), move(EventBase), sa, signal_int),
+            destruct);
+}
 \end{lstlisting}
 
 \section{Внешний интерфейс}
@@ -357,3 +396,5 @@ systemd сервисы. Архив с приложением содержит:
     \item Русскую языковую модель;
     \item Файл systemd сервиса.
 \end{itemize}
+
+Упакова осуществляется с помощью утилиты \textit{debuild}.
