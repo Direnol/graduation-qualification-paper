@@ -23,11 +23,7 @@
         \item Короткие фразы.
         \item Длинные фразы.
     \end{itemize}
-    \item Потребление ресурсов.
-    \begin{itemize}
-        \item Память.
-        \item Нагрузка на процессор.
-    \end{itemize}
+    \item Потребление памяти.
     \item Точность распозвания.
     \begin{itemize}
         \item Для коротких фраз.
@@ -61,21 +57,28 @@
 они применяются для взаимодействия с подсистемой интерактивного голосового меню.
 
 \section{Результаты экспериментов}
-На рисунках~\ref{fig:test:speed:short}--\ref{fig:test:cpu:long} результаты
+На рисунках~\ref{fig:test:time:short}--\ref{fig:test:time:long} результаты
 экспериментов, на которых представлены графики, показывающие интересующие нас
-характеристики.
+характеристики. Время распознавания \textit{CMU Sphinx} с использованием
+грамматики приблизительно равно времени распозвания \textit{Kaldi}.
 
-\pic[H][0.7]{short.png}{test:speed:short}{Время распозвания коротких фраз}
-\pic[H][0.7]{short.png}{test:speed:long}{Время распозвания длинных фраз}
-\pic[H][0.7]{short.png}{test:mem:short}{Потребление памяти на коротких фразах}
-\pic[H][0.7]{short.png}{test:mem:long}{Потребление памяти на длинных фразах}
-\pic[H][0.7]{short.png}{test:cpu:short}{Загрузка процессора на коротких фразах}
-\pic[H][0.7]{short.png}{test:cpu:long}{Загрузка процессора на длинных фразах}
+\pic[H][0.7]{time-short.png}{test:time:short}{Время распозвания коротких фраз}
+\pic[H][0.7]{time-long.png}{test:time:long}{Время распозвания длинных фраз}
+
+\pic[H][0.7]{accur-short.png}{test:accur:short}{Точность распозвания коротких фраз}
+\pic[H][0.7]{accur-long.png}{test:accur:long}{Точность распозвания длинных фраз}
 
 \section{Оценка полученных результатов}
 
-Как видно по графикам~\ref{fig:test:speed:short}--\ref{fig:test:cpu:long}~---~\textit{CMU Sphinx}
-уступает по проиводительности \textit{Kaldi} по всем характеристиками.
+Как видно по графикам~\ref{fig:test:time:short}--\ref{fig:test:accur:long}~---~\textit{CMU Sphinx}
+уступает по производительности и точности \textit{Kaldi}. Также потребление памяти после
+запуска состовляет:
+\begin{itemize}
+    \item \textit{Kaldi}~---~750~MB;
+    \item \textit{CMU Sphinx} с загрузкой полной языковой модели~---~2500MB;
+    \item \textit{CMU Sphinx} с использованием грамматики~---~600MB;
+\end{itemize}
+
 Из чего следует, что для организации подсистемы будет использован \textit{Kaldi},
 который, на основе полученных данных, также позволяет реализовать распозвание речи
 в реальном времени.
